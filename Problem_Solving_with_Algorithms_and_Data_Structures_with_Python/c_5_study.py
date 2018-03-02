@@ -161,6 +161,22 @@ and evenly distributes the items in the hash table.
 
 There are a number of common ways to extend the simple remainder method: the folder method, the mid-square method
 
+Collision is the main issue with hashing: it happens when two items hash to the same slot (e.g. 44 and 77 above).
+Possible solutions are:
+- linear probing: if an item hashes to a slot that is already taken, you move sequentially to the next slot, and so on, until you find one that is free.
+  of course, when you then have to search for smt, you have to follow the same approach:if you hasha an item and it is not in the slot, you cannot
+  just return False, but you have to search until either you find the item or we find an empty slot.
+  problem: clustering --> item tend to cluster in a part of the list.
+  solution: skip --> instead of moving slot by slot, you move three slots at a time. Note: the size of the skip has to ensure that you visit
+  all the slots. To ensure this, it is often suggested that the table size be a prime number.
+  The general name for this process of looking for another slot after a collision is rehashing.
+  Alteernative solution: quadratic probing. Instead of using a constant “skip” value, you use a rehash function
+  that increments the hash value by 1, 3, 5, 7, 9, and so on
+- chaining: allow each slot to hold a reference to a collection (or chain) of items
+  When you want to search for an item, you use the hash function to generate the slot where it should reside.
+  Since each slot holds a collection, you use a searching technique to decide whether the item is present.
+
+
 '''
 
 def create_hash_table_marco(items_list, hash_table_length):
@@ -176,4 +192,75 @@ def create_hash_table_marco(items_list, hash_table_length):
     return hash_table
 
 test_list = [54,26,93,17,77,31]
-create_hash_table_marco(test_list , 11)
+# create_hash_table_marco(test_list , 11)
+
+
+# implementing the hash table as follows:
+# Below we use two lists to create a HashTable class that implements the Map abstract data type.
+# One list, called slots, will hold the key items and a parallel list, called data, will hold the data values.
+# When we look up a key, the corresponding position in the data list will hold the associated data value.
+
+
+# note, this implementation follows the description in the book, whereby the slots are defined as increasing numbers from 0 to len size
+# below I implement a different version.
+class HashTable:
+
+    def __init__(self):
+        self.size = 11
+        # self.slots = [None for x in range(self.size)]
+        self.data = [None for x in range(self.size)]
+
+    def show(self):
+        # print('slots:', self.slots)
+        print('data:', self.data)
+
+    def hash_function(self, item):
+        print('item:', item)
+        slot = item % self.size
+        return slot
+
+    def rehash(self, slot, item):
+        while self.data[slot] != None:
+            print('slot already taken at position', slot)
+            if slot < self.size - 1:  # if you get to the end of the list, restart from position zero
+                slot += 1
+            else:
+                slot = 0
+        print('free slot found at positon', slot)
+        self.data[slot] = item
+
+
+    def put(self, item):
+        print('item:', item)
+        slot = self.hash_function(item)
+        print('slot:', slot)
+
+        if self.data[slot] == None:
+            self.data[slot] = item
+        else: # linear probing with a “plus 1” rehash function
+
+            self.rehash(slot, item)
+            # while self.data[slot] != None:
+            #     print('slot already taken at position', slot)
+            #     if slot < self.size-1: # if you get to the end of the list, restart from position zero
+            #         slot += 1
+            #     else:
+            #         slot = 0
+            # print('free slot found at positon',slot)
+            # self.data[slot] = item
+
+hashtable = HashTable()
+
+hashtable.show()
+hashtable.put(11)
+hashtable.show()
+hashtable.put(100)
+hashtable.show()
+hashtable.put(44)
+hashtable.show()
+hashtable.put(108)
+hashtable.show()
+hashtable.put(97)
+hashtable.show()
+hashtable.put(86)
+hashtable.show()
