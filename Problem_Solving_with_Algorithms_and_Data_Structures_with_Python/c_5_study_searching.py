@@ -176,6 +176,11 @@ Possible solutions are:
   When you want to search for an item, you use the hash function to generate the slot where it should reside.
   Since each slot holds a collection, you use a searching technique to decide whether the item is present.
 
+The most important piece of information we need to analyze the use of a hash table is the load factor (basically, the percentage of slot already filled).
+Conceptually, if the load factor is small, then there is a lower chance of collisions, meaning that items are more likely to be in the slots where they belong.
+If it is large, meaning that the table is filling up, then there are more and more collisions.
+This means that collision resolution is more difficult, requiring more comparisons to find an empty slot.
+With chaining, increased collisions means an increased number of items on each chain.
 
 '''
 
@@ -196,14 +201,11 @@ test_list = [54,26,93,17,77,31]
 
 
 # implementing the hash table as follows:
-# Below we use two lists to create a HashTable class that implements the Map abstract data type.
-# One list, called slots, will hold the key items and a parallel list, called data, will hold the data values.
-# When we look up a key, the corresponding position in the data list will hold the associated data value.
 
 
 # note, this implementation follows the description in the book, whereby the slots are defined as increasing numbers from 0 to len size
 # below I implement a different version.
-class HashTable:
+class HashTable_1():
 
     def __init__(self):
         self.size = 11
@@ -229,7 +231,6 @@ class HashTable:
         print('free slot found at positon', slot)
         self.data[slot] = item
 
-
     def put(self, item):
         print('item:', item)
         slot = self.hash_function(item)
@@ -249,18 +250,96 @@ class HashTable:
             # print('free slot found at positon',slot)
             # self.data[slot] = item
 
-hashtable = HashTable()
+hashtable = HashTable_1()
 
-hashtable.show()
-hashtable.put(11)
-hashtable.show()
-hashtable.put(100)
-hashtable.show()
-hashtable.put(44)
-hashtable.show()
-hashtable.put(108)
-hashtable.show()
-hashtable.put(97)
-hashtable.show()
-hashtable.put(86)
-hashtable.show()
+# hashtable.show()
+# hashtable.put(11)
+# hashtable.show()
+# hashtable.put(100)
+# hashtable.show()
+# hashtable.put(44)
+# hashtable.show()
+# hashtable.put(108)
+# hashtable.show()
+# hashtable.put(97)
+# hashtable.show()
+# hashtable.put(86)
+# hashtable.show()
+
+# however, this is not the usual way hastables work: you should provide both the value and the key, i.e. the key is not
+# just an increasing number
+# from the book: First we will create a hash table and store some items with integer keys and string data values.
+
+class Hashtable_2():
+
+    def __init__(self):
+        self.size = 11
+        self.slots = [None for x in range(self.size)]
+        self.data = [None for x in range(self.size)]
+
+    def show(self):
+        print('slots',self.slots)
+        print('data', self.data)
+        print('\n')
+
+    def hash_function(self, key):
+        hash_value = key % self.size
+        return hash_value
+
+    def rehash(self, hash_value):
+        new_hash_value = hash_value+1
+        return new_hash_value
+
+    def put(self, key, value):
+
+        hash_value = self.hash_function(key)
+
+        if self.slots[hash_value] == None:
+            self.slots[hash_value] = key
+            self.data[hash_value] = value
+
+        # first check if you can replace
+        elif self.slots[hash_value] == key:
+            print('value for key= {0} is being reassigned'.format(key))
+            self.data[hash_value] = value
+
+        # then rehash
+        else:
+            while self.data[hash_value] != None:
+                print('slot already taken at position', hash_value)
+                if hash_value < self.size - 1:  # if you get to the end of the list, restart from position zero (below)
+                    hash_value = self.rehash(hash_value)
+                else:
+                    hash_value = 0
+
+            print('free slot found at positon', hash_value)
+
+            self.slots[hash_value] = key
+            self.data[hash_value] = value
+
+
+    def get(self, key):
+        hash_value = self.hash_function(key)
+
+        while self.slots[hash_value] != key:
+            hash_value = self.rehash(hash_value)
+
+        return self.data[hash_value]
+
+
+
+
+
+h2 = Hashtable_2()
+h2.put(54,"cat")
+h2.put(26,"dog")
+h2.put(93,"lion")
+h2.put(17,"tiger")
+h2.put(77,"bird")
+h2.put(31,"cow")
+h2.put(44,"goat")
+h2.put(55,"pig")
+h2.put(20,"chicken")
+h2.put(20,"duck") # replacing
+
+
