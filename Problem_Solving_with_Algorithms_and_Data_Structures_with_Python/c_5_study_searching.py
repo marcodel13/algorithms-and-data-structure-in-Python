@@ -49,7 +49,7 @@ def ordered_sequential_search(a_list, item):
 
 '''
 you need an ordered list to use this.
-start from the middel of the list. If the item we are searching for is greater than the middle item,
+start from the middle of the list. If the item we are searching for is greater than the middle item,
 we know that the entire lower half of the list as well as the middle item can be eliminated from further consideration.
 The item, if it is in the list, must be in the upper half.
 Remember that in this case O(log n)
